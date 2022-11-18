@@ -1,5 +1,4 @@
 import { AxiosStatic } from 'axios';
-import { PISOPAY_PASSWORD, PISOPAY_USER, PISOPAY_XGATEWAY } from "./config";
 
 interface Payload {
     [key: string]: any;
@@ -20,9 +19,9 @@ export class PisopayWrapper {
     public checkoutStatus: string;
 
     constructor() {
-        this.user = PISOPAY_USER
-        this.password = PISOPAY_PASSWORD
-        this.xgateway = PISOPAY_XGATEWAY
+        this.user = process.env.PISOPAY_USER
+        this.password = process.env.PISOPAY_PASSWORD
+        this.xgateway = process.env.PISOPAY_XGATEWAYAUTH
     }
 
     async generateSession() {
