@@ -41,6 +41,7 @@ export class PisopayWrapper {
         
         if (response.data.responseCode === "0") {
             let sessionId = response.data.data.sessionId
+            console.log(sessionId)
             return sessionId
         } else {
             console.log(response)
@@ -84,6 +85,7 @@ export class PisopayWrapper {
             controller.abort()
         }
 
+        console.log(this.checkoutStatus)
         return this.checkoutStatus
     }
 
@@ -110,6 +112,7 @@ export class PisopayWrapper {
         console.log(response)
 
         if (response.data.responseCode === "0") {
+            console.log(response.data.data)
             return response.data.data
         }
     }
