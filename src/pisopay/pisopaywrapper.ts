@@ -63,7 +63,7 @@ export class PisopayWrapper {
     }
 
     async checkout(data: Payload) {
-        this.generateSession();
+        await this.generateSession();
 
         let payload:Payload = {}
 
