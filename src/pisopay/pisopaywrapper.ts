@@ -16,11 +16,6 @@ export class PisopayWrapper {
     protected xgateway: string;
 
     public sessionId: string;
-    public transacData: Array<any>;
-
-    // app
-    public checkoutUrl: string;
-    public checkoutStatus: string;
 
     constructor() {
         this.user = USER
@@ -45,14 +40,14 @@ export class PisopayWrapper {
             const response = await axios(config)
 
             if (response.data.responseCode === "0") {
+
                 this.sessionId = response.data.data.sessionId
-                console.log(this.sessionId)
+                return response;
+
             } else {
                 console.log(response)
                 controller.abort()
             }
-
-            return response;
             
         } catch (error) {
 
@@ -93,15 +88,11 @@ export class PisopayWrapper {
             const response = await axios(config)
 
             if (response.data.responseCode === "0") {
-                this.checkoutStatus = 'success'
-                this.checkoutUrl = response.data.data.checkoutUrl
+                return response
             } else {
-                this.checkoutStatus = 'failed'
                 console.log(response)
                 controller.abort()
             }
-
-            return response;
 
         } catch (error) {
             
@@ -112,6 +103,7 @@ export class PisopayWrapper {
     }
 
     async traceTransac(traceNo: string) {
+        await this.generateSession();
 
         if (!traceNo || traceNo === "") {
             console.log("Trace number is required!")
@@ -124,7 +116,7 @@ export class PisopayWrapper {
             headers: {
                 'X-Gateway-Auth': this.xgateway,
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.generateSession()}`
+                'Authorization': `Bearer ${this.sessionId}`
             },
             data: traceNo,
             signal: controller.signal
@@ -135,7 +127,6 @@ export class PisopayWrapper {
             const response = await axios(config)
 
             if (response.data.responseCode === "0") {
-                this.transacData = response.data.data
                 return response
             }
 
@@ -146,13 +137,5 @@ export class PisopayWrapper {
 
         }
 
-    }
-
-    getCheckoutUrl() {
-        return this.checkoutUrl
-    }
-
-    getCheckoutStatus() {
-        return this.checkoutStatus
     }
 }
