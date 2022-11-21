@@ -14,6 +14,8 @@ export class PisopayWrapper {
     protected user: string;
     protected password: string;
     protected xgateway: string;
+    protected sessionId: string;
+    protected transacData: Array<any>;
 
     // app
     public checkoutUrl: string;
@@ -37,19 +39,31 @@ export class PisopayWrapper {
             signal: controller.signal
         }
 
-        const response = await axios(config)
-        
-        if (response.data.responseCode === "0") {
-            let sessionId = response.data.data.sessionId
-            console.log(sessionId)
-            return sessionId
-        } else {
-            console.log(response)
+        try {
+
+            const response = await axios(config)
+
+            if (response.data.responseCode === "0") {
+                this.sessionId = response.data.data.sessionId
+                console.log(this.sessionId)
+            } else {
+                console.log(response)
+                controller.abort()
+            }
+
+            return response;
+            
+        } catch (error) {
+
+            console.log(error)
             controller.abort()
+
         }
     }
 
     async checkout(data: Payload) {
+        this.generateSession();
+
         let payload:Payload = {}
 
         payload["customerName"] = data["customerName"];
@@ -67,26 +81,33 @@ export class PisopayWrapper {
             headers: {
                 'X-Gateway-Auth': this.xgateway,
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.generateSession()}`
+                'Authorization': `Bearer ${this.sessionId}`
             },
             data: payload,
             signal: controller.signal
         }
 
-        const response = await axios(config)
-        console.log(response)
+        try {
 
-        if (response.data.responseCode === "0") {
-            this.checkoutStatus = 'success'
-            this.checkoutUrl = response.data.data.checkoutUrl
-        } else {
-            this.checkoutStatus = 'failed'
-            console.log(response)
+            const response = await axios(config)
+
+            if (response.data.responseCode === "0") {
+                this.checkoutStatus = 'success'
+                this.checkoutUrl = response.data.data.checkoutUrl
+            } else {
+                this.checkoutStatus = 'failed'
+                console.log(response)
+                controller.abort()
+            }
+
+            return response;
+
+        } catch (error) {
+            
+            console.log(error)
             controller.abort()
         }
-
-        console.log(this.checkoutStatus)
-        return this.checkoutStatus
+        
     }
 
     async traceTransac(traceNo: string) {
@@ -108,16 +129,29 @@ export class PisopayWrapper {
             signal: controller.signal
         }
 
-        const response = await axios(config)
-        console.log(response)
+        try {
 
-        if (response.data.responseCode === "0") {
-            console.log(response.data.data)
-            return response.data.data
+            const response = await axios(config)
+
+            if (response.data.responseCode === "0") {
+                this.transacData = response.data.data
+                return response
+            }
+
+        } catch (error) {
+            
+            console.log(error)
+            controller.abort()
+
         }
+
     }
 
     getCheckoutUrl() {
         return this.checkoutUrl
+    }
+
+    getCheckoutStatus() {
+        return this.checkoutStatus
     }
 }
