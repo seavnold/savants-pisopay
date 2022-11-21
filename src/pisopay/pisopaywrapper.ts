@@ -14,8 +14,9 @@ export class PisopayWrapper {
     protected user: string;
     protected password: string;
     protected xgateway: string;
-    protected sessionId: string;
-    protected transacData: Array<any>;
+
+    public sessionId: string;
+    public transacData: Array<any>;
 
     // app
     public checkoutUrl: string;
